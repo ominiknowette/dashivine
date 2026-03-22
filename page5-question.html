@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashivine | What's Next</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+  <div class="site-shell inner-shell">
+    <main class="page-frame final-layout">
+      <section class="page-intro">
+        <p class="eyebrow">Page six</p>
+        <h1 id="scoreHeadline">Your result</h1>
+        <p class="lede narrow" id="scoreSummary"></p>
+      </section>
+
+      <article class="glass-card score-card">
+        <div class="score-circle" id="scoreCircle">0%</div>
+        <p class="score-note" id="scoreNote"></p>
+      </article>
+
+      <article class="glass-card final-question-card">
+        <p class="section-kicker">One more page</p>
+        <h2>Are you ready for what's next?</h2>
+        <p class="final-copy">
+          Your score is in. The quiz is over. What comes next is the part David actually cares about.
+        </p>
+
+        <div class="final-actions">
+          <a class="button button-primary" id="nextBtn" href="page6-question.html">I'm ready</a>
+        </div>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    const stored = sessionStorage.getItem("dashivineQuiz");
+    const quiz = stored ? JSON.parse(stored) : { score: 0, correctAnswers: 0, totalQuestions: 10 };
+
+    const scoreCircle = document.getElementById("scoreCircle");
+    const scoreHeadline = document.getElementById("scoreHeadline");
+    const scoreSummary = document.getElementById("scoreSummary");
+    const scoreNote = document.getElementById("scoreNote");
+    scoreCircle.textContent = quiz.score + "%";
+
+    if (quiz.score >= 80) {
+      scoreHeadline.textContent = "You passed beautifully";
+      scoreSummary.textContent = "That is " + quiz.correctAnswers + " out of " + quiz.totalQuestions + ". Strong form. David is impressed, and probably a little smug.";
+      scoreNote.textContent = "80 percent or higher. Official distinction.";
+    } else {
+      scoreHeadline.textContent = "You still made it to the important part";
+      scoreSummary.textContent = "That is " + quiz.correctAnswers + " out of " + quiz.totalQuestions + ". Not top marks, but this final question matters more than the others anyway.";
+      scoreNote.textContent = "Below 80 percent, but still very much in the running.";
+    }
+
+    sessionStorage.setItem("dashivineQuiz", JSON.stringify(quiz));
+  </script>
+</body>
+</html>

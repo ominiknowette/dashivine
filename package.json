@@ -1,0 +1,12 @@
+{
+  "name": "dashivine-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Romantic story site with quiz scoring and email notification flow",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

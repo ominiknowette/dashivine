@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashivine | The Quiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+  <div class="site-shell inner-shell">
+    <main class="page-frame quiz-layout">
+      <section class="page-intro">
+        <p class="eyebrow">Page five</p>
+        <h1>The Quiz</h1>
+        <p class="lede narrow">
+          Ten questions. One hundred percent. A proper assessment of whether she has been
+          paying attention.
+        </p>
+      </section>
+
+      <div class="quiz-meta">
+        <div class="score-pill" id="progressLabel">Question 1 of 10</div>
+        <div class="dots" id="dots"></div>
+      </div>
+
+      <article class="glass-card quiz-card">
+        <h2 class="quiz-question" id="questionText"></h2>
+        <div class="quiz-options" id="options"></div>
+        <p class="quiz-feedback" id="feedback"></p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        q: "What usually happens when David tells a joke that should not work?",
+        opts: ["You ignore him", "You laugh anyway", "You rate it out of ten", "You walk away"],
+        a: 1,
+        p: "Exactly. You encourage him far too much."
+      },
+      {
+        q: "What about you seems to stop David mid-thought?",
+        opts: ["Your timing", "Your eyes", "Your playlists", "Your handwriting"],
+        a: 1,
+        p: "That one was never difficult."
+      },
+      {
+        q: "What kind of feeling does he say shows up when you are around?",
+        opts: ["Chaos", "Silence", "Peace", "Competition"],
+        a: 2,
+        p: "Yes. Warm, steady peace."
+      },
+      {
+        q: "How serious has this become for David?",
+        opts: ["Not serious at all", "Just a passing crush", "More serious than he planned", "Only serious on weekends"],
+        a: 2,
+        p: "He tried to be casual. That clearly failed."
+      },
+      {
+        q: "What is this website trying to be?",
+        opts: ["A prank", "A random coding test", "A personal letter in website form", "A game with no point"],
+        a: 2,
+        p: "Now we are aligned."
+      },
+      {
+        q: "What does that photo page really show right now?",
+        opts: ["Two random pictures", "Two separate lives already leaning toward each other", "A fashion portfolio", "Nothing important yet"],
+        a: 1,
+        p: "Exactly. Not a finished story, but the shape of one."
+      },
+      {
+        q: "If David made this at all, what does that already tell you?",
+        opts: ["He was bored", "He lost a bet", "He means this", "He enjoys stress"],
+        a: 2,
+        p: "Correct. This took intention."
+      },
+      {
+        q: "What score is considered strong in this quiz?",
+        opts: ["40 percent", "60 percent", "80 percent or higher", "95 percent only"],
+        a: 2,
+        p: "Right. Eighty and above is proper work."
+      },
+      {
+        q: "What mood is this whole experience aiming for?",
+        opts: ["Cold and distant", "Playful but sincere", "Corporate", "Completely confusing"],
+        a: 1,
+        p: "That is the exact lane."
+      },
+      {
+        q: "What comes after this quiz?",
+        opts: ["A final question", "A loading screen", "Nothing", "A leaderboard"],
+        a: 0,
+        p: "And that question matters."
+      }
+    ];
+
+    let current = 0;
+    let correctAnswers = 0;
+
+    const dotsEl = document.getElementById("dots");
+    const progressLabel = document.getElementById("progressLabel");
+    const questionText = document.getElementById("questionText");
+    const optionsEl = document.getElementById("options");
+    const feedbackEl = document.getElementById("feedback");
+
+    function buildDots() {
+      dotsEl.innerHTML = "";
+      questions.forEach((_, index) => {
+        const dot = document.createElement("span");
+        dot.className = "dot" + (index === 0 ? " active" : "");
+        dot.dataset.index = index;
+        dotsEl.appendChild(dot);
+      });
+    }
+
+    function updateDots() {
+      document.querySelectorAll(".dot").forEach((dot, index) => {
+        dot.className = "dot";
+        if (index < current) dot.classList.add("done");
+        if (index === current) dot.classList.add("active");
+      });
+    }
+
+    function renderQuestion() {
+      const item = questions[current];
+      progressLabel.textContent = "Question " + (current + 1) + " of " + questions.length;
+      questionText.textContent = item.q;
+      feedbackEl.textContent = "";
+      optionsEl.innerHTML = "";
+      updateDots();
+
+      item.opts.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "quiz-option";
+        button.textContent = option;
+        button.addEventListener("click", () => handleAnswer(index, button));
+        optionsEl.appendChild(button);
+      });
+    }
+
+    function handleAnswer(index, button) {
+      const item = questions[current];
+      const buttons = Array.from(document.querySelectorAll(".quiz-option"));
+      buttons.forEach((entry) => {
+        entry.disabled = true;
+      });
+
+      if (index === item.a) {
+        correctAnswers += 1;
+        button.classList.add("correct");
+        feedbackEl.textContent = item.p;
+      } else {
+        button.classList.add("wrong");
+        buttons[item.a].classList.add("correct");
+        feedbackEl.textContent = "Not quite, but we will be gracious.";
+      }
+
+      window.setTimeout(() => {
+        current += 1;
+        if (current < questions.length) {
+          renderQuestion();
+          return;
+        }
+
+        const score = Math.round((correctAnswers / questions.length) * 100);
+        sessionStorage.setItem("dashivineQuiz", JSON.stringify({
+          score,
+          correctAnswers,
+          totalQuestions: questions.length
+        }));
+        window.location.href = "page5-question.html";
+      }, 1400);
+    }
+
+    buildDots();
+    renderQuestion();
+  </script>
+</body>
+</html>

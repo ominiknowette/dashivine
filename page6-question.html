@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashivine | The Ask</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body class="question-stage">
+  <div class="petal-bg" id="pb"></div>
+
+  <div class="site-shell inner-shell">
+    <main class="page-frame dramatic-layout">
+      <section class="dramatic-hero">
+        <p class="eyebrow">The real question</p>
+        <h1>Are you ready<br>for what's next?</h1>
+        <p class="lede narrow">
+          David does not usually do this. He does not usually ask like this either.
+          So if you have made it this far, just know he means every part of it.
+        </p>
+      </section>
+
+      <article class="glass-card ask-card">
+        <p class="section-kicker">And now the point of all this</p>
+        <div class="big-ask">
+          <span>Will</span>
+          <span>you</span>
+          <span>be mine?</span>
+        </div>
+        <p class="ask-copy">
+          I rarely do this, and I do not ask lightly. But I know what I want:
+          something real, something steady, and something that feels like you and me.
+        </p>
+        <p class="ask-copy ask-copy-soft">
+          I know your heart is not something you hand over lightly. If you ever say yes to
+          love, it would be because you can actually see tomorrow in it, not just the excitement
+          of today. And I will be honest, that kind of depth scares me a little, because this is
+          only my second time stepping into something this real. But maybe that is what makes this
+          matter so much to me, because even with that fear, I still want it to be you.
+        </p>
+
+        <div class="final-actions ask-actions">
+          <button class="button button-primary ask-yes" id="yesBtn" type="button">Yes</button>
+          <button class="button button-ghost ask-no" id="noBtn" type="button">No</button>
+        </div>
+
+        <p class="status-text" id="statusText" aria-live="polite"></p>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    const stored = sessionStorage.getItem("dashivineQuiz");
+    const quiz = stored ? JSON.parse(stored) : { score: 0, correctAnswers: 0, totalQuestions: 10 };
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const statusText = document.getElementById("statusText");
+    let noOffsetX = 0;
+    let noOffsetY = 0;
+
+    function runAway() {
+      const viewportPadding = 18;
+      const rect = noBtn.getBoundingClientRect();
+      const minX = viewportPadding - rect.left;
+      const maxX = window.innerWidth - viewportPadding - rect.right;
+      const minY = viewportPadding - rect.top;
+      const maxY = window.innerHeight - viewportPadding - rect.bottom;
+      const desiredX = (Math.random() - 0.5) * 220;
+      const desiredY = (Math.random() - 0.5) * 160;
+
+      noOffsetX = Math.min(Math.max(noOffsetX + desiredX, noOffsetX + minX), noOffsetX + maxX);
+      noOffsetY = Math.min(Math.max(noOffsetY + desiredY, noOffsetY + minY), noOffsetY + maxY);
+      noBtn.style.transform = `translate(${noOffsetX}px, ${noOffsetY}px)`;
+    }
+
+    noBtn.addEventListener("mouseenter", runAway);
+    noBtn.addEventListener("focus", runAway);
+    noBtn.addEventListener("click", runAway);
+    noBtn.addEventListener("touchstart", runAway, { passive: true });
+
+    function notifyAndContinue() {
+      yesBtn.disabled = true;
+      noBtn.disabled = true;
+      statusText.textContent = "Go on.";
+
+      window.setTimeout(() => {
+        window.location.href = "page7-celebration.html";
+      }, 700);
+    }
+
+    yesBtn.addEventListener("click", notifyAndContinue);
+
+    const pb = document.getElementById("pb");
+    for (let i = 0; i < 28; i++) {
+      const petal = document.createElement("div");
+      petal.className = "petal";
+      const size = 6 + Math.random() * 14;
+      petal.style.cssText = `
+        width: ${size}px;
+        height: ${size}px;
+        left: ${Math.random() * 100}%;
+        top: -${Math.random() * 20}px;
+        background: ${Math.random() > 0.4 ? "#d4608a" : "#a09098"};
+        animation-duration: ${5 + Math.random() * 8}s;
+        animation-delay: ${-Math.random() * 12}s;
+        opacity: ${0.14 + Math.random() * 0.18};
+      `;
+      pb.appendChild(petal);
+    }
+  </script>
+</body>
+</html>
