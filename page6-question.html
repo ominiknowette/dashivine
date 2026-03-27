@@ -58,40 +58,74 @@
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
     const statusText = document.getElementById("statusText");
-    let noOffsetX = 0;
-    let noOffsetY = 0;
+    const noPrompts = [
+      "Come on, are you sure?",
+      "Really sure?",
+      "You want David to believe that answer?",
+      "Last chance to rethink that.",
+      "Okay... absolutely sure?"
+    ];
+    const noLabels = [
+      "Still no?",
+      "Really?",
+      "Think again",
+      "Last chance",
+      "Final no"
+    ];
+    let noTapCount = 0;
 
-    function runAway() {
-      const viewportPadding = 18;
-      const rect = noBtn.getBoundingClientRect();
-      const minX = viewportPadding - rect.left;
-      const maxX = window.innerWidth - viewportPadding - rect.right;
-      const minY = viewportPadding - rect.top;
-      const maxY = window.innerHeight - viewportPadding - rect.bottom;
-      const desiredX = (Math.random() - 0.5) * 220;
-      const desiredY = (Math.random() - 0.5) * 160;
-
-      noOffsetX = Math.min(Math.max(noOffsetX + desiredX, noOffsetX + minX), noOffsetX + maxX);
-      noOffsetY = Math.min(Math.max(noOffsetY + desiredY, noOffsetY + minY), noOffsetY + maxY);
-      noBtn.style.transform = `translate(${noOffsetX}px, ${noOffsetY}px)`;
-    }
-
-    noBtn.addEventListener("mouseenter", runAway);
-    noBtn.addEventListener("focus", runAway);
-    noBtn.addEventListener("click", runAway);
-    noBtn.addEventListener("touchstart", runAway, { passive: true });
-
-    function notifyAndContinue() {
+    async function submitAnswer(answer) {
       yesBtn.disabled = true;
       noBtn.disabled = true;
-      statusText.textContent = "Go on.";
+      statusText.textContent = "Sending your answer to David...";
+
+      try {
+        const response = await fetch("/api/notify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            score: quiz.score,
+            correctAnswers: quiz.correctAnswers,
+            totalQuestions: quiz.totalQuestions,
+            answer,
+            noTapCount
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error("Notify request failed");
+        }
+
+        statusText.textContent = "David has been notified.";
+      } catch (error) {
+        statusText.textContent = "Your answer is safe. The page will continue.";
+      }
 
       window.setTimeout(() => {
         window.location.href = "page7-celebration.html";
-      }, 700);
+      }, 900);
     }
 
-    yesBtn.addEventListener("click", notifyAndContinue);
+    function handleNoTap() {
+      if (noTapCount < noPrompts.length) {
+        statusText.textContent = noPrompts[noTapCount];
+        noBtn.textContent = noLabels[noTapCount];
+        noTapCount += 1;
+        if (noTapCount === noPrompts.length) {
+          statusText.textContent = "Alright. Sending that answer to David...";
+          submitAnswer("no");
+        }
+        return;
+      }
+
+      statusText.textContent = "Alright. Sending that answer to David...";
+      submitAnswer("no");
+    }
+
+    yesBtn.addEventListener("click", () => submitAnswer("yes"));
+    noBtn.addEventListener("click", handleNoTap);
 
     const pb = document.getElementById("pb");
     for (let i = 0; i < 28; i++) {

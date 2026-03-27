@@ -1,8 +1,8 @@
 const http = require("http");
+const https = require("https");
 const fs = require("fs");
 const path = require("path");
 
-const PORT = Number(process.env.PORT || 8080);
 const ROOT = __dirname;
 const MIME_TYPES = {
   ".css": "text/css; charset=utf-8",
@@ -40,7 +40,7 @@ function loadEnvFile() {
     if (splitIndex === -1) return;
     const key = trimmed.slice(0, splitIndex).trim();
     const value = trimmed.slice(splitIndex + 1).trim();
-    if (key && !process.env[key]) {
+    if (key) {
       process.env[key] = value;
     }
   });
@@ -52,6 +52,10 @@ function loadEnvFile() {
     whatsappTo: process.env.WHATSAPP_TO || null
   });
 }
+
+loadEnvFile();
+
+const PORT = Number(process.env.PORT || 8080);
 
 function sendJson(response, statusCode, payload) {
   response.writeHead(statusCode, {
@@ -92,7 +96,10 @@ async function notify(payload) {
   const authHeader = Buffer.from(`${accountSid}:${authToken}`).toString("base64");
   const body = new URLSearchParams();
   body.set("From", whatsappFrom);
-  body.set("Body", "Come outside your hostel.");
+  const answerLine = payload.answer === "no"
+    ? `She answered NO after ${payload.noTapCount || 0} extra prompts.`
+    : `She answered ${String(payload.answer || "the question").toUpperCase()}.`;
+  body.set("Body", `${answerLine} Quiz score: ${scoreLine}.`);
   whatsappTo.forEach((entry) => body.append("To", entry));
 
   console.log("Attempting WhatsApp send", {
@@ -101,25 +108,47 @@ async function notify(payload) {
     scoreLine
   });
 
-  const twilioResponse = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${authHeader}`,
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: body.toString()
+  const requestBody = body.toString();
+
+  const successBody = await new Promise((resolve, reject) => {
+    const req = https.request(
+      {
+        hostname: "api.twilio.com",
+        port: 443,
+        path: `/2010-04-01/Accounts/${accountSid}/Messages.json`,
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${authHeader}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Length": Buffer.byteLength(requestBody)
+        }
+      },
+      (res) => {
+        let responseBody = "";
+        res.on("data", (chunk) => {
+          responseBody += chunk;
+        });
+        res.on("end", () => {
+          if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+            resolve(responseBody);
+            return;
+          }
+
+          reject(new Error(`Twilio request failed (${res.statusCode || "unknown"}): ${responseBody}`));
+        });
+      }
+    );
+
+    req.on("error", (error) => {
+      reject(new Error(`Twilio network error: ${error.message}`));
+    });
+
+    req.write(requestBody);
+    req.end();
   });
 
-  if (!twilioResponse.ok) {
-    const responseBody = await twilioResponse.text();
-    throw new Error(`Twilio request failed: ${responseBody}`);
-  }
-
-  const successBody = await twilioResponse.text();
   console.log("WhatsApp send response", successBody);
 }
-
-loadEnvFile();
 
 const server = http.createServer((request, response) => {
   const requestUrl = new URL(request.url, `http://${request.headers.host}`);
