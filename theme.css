@@ -232,6 +232,11 @@ code {
   align-self: stretch;
 }
 
+.story-memory-card {
+  grid-column: 1 / -1;
+  max-width: 780px;
+}
+
 .feature-list {
   margin: 0;
   padding-left: 1.1rem;
