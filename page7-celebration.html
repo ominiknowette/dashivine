@@ -15,7 +15,7 @@
       <section class="page-intro">
         <p class="eyebrow">Final reveal</p>
         <h1 class="final-command">A MESSAGE<br>HAS BEEN SENT.</h1>
-        <p class="lede narrow">
+        <p class="lede narrow" id="finalLead">
           A message has been sent to David to notify David of your answer.
         </p>
       </section>
@@ -30,11 +30,11 @@
           <span class="wordmark-big">d</span>
           <span class="wordmark-small">ivine</span>
         </div>
-        <p class="celebration-copy">
+        <p class="celebration-copy" id="finalBody">
           This page is only here to let you know your answer reached him. The rest is between
           the two of you now.
         </p>
-        <p class="celebration-copy">
+        <p class="celebration-copy" id="finalOutcome">
           This scary future we are about to embark on makes me happy, because it is with you.
         </p>
       </article>
@@ -44,5 +44,22 @@
       </div>
     </main>
   </div>
+
+  <script>
+    const finalAnswer = sessionStorage.getItem("dashivineFinalAnswer");
+    const finalLead = document.getElementById("finalLead");
+    const finalBody = document.getElementById("finalBody");
+    const finalOutcome = document.getElementById("finalOutcome");
+
+    if (finalAnswer === "no") {
+      finalLead.textContent = "A message has been sent to David to notify him of your answer.";
+      finalBody.textContent = "This page is only here to let you know your answer reached him. Thank you for being honest.";
+      finalOutcome.textContent = "Even if your answer was no, David will respect it and carry that answer with grace.";
+    } else {
+      finalLead.textContent = "A message has been sent to David to notify him of your answer.";
+      finalBody.textContent = "This page is only here to let you know your answer reached him. The rest is between the two of you now.";
+      finalOutcome.textContent = "This scary future we are about to embark on makes me happy, because it is with you.";
+    }
+  </script>
 </body>
 </html>

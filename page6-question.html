@@ -78,6 +78,7 @@
       yesBtn.disabled = true;
       noBtn.disabled = true;
       statusText.textContent = "Sending your answer to David...";
+      sessionStorage.setItem("dashivineFinalAnswer", answer);
 
       try {
         const response = await fetch("/api/notify", {
