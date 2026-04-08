@@ -680,10 +680,11 @@ code {
   }
 
   .nav-links {
-    gap: 0.35rem;
+    gap: 0.5rem 1rem;
     width: 100%;
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
   }
 
   .brand,
@@ -736,7 +737,7 @@ code {
   .page-intro .lede,
   .dramatic-hero .lede,
   .ask-copy {
-    max-width: 22ch;
+    max-width: 100%;
   }
 
   .hero-panel,
@@ -807,6 +808,14 @@ code {
   .ask-actions {
     min-height: auto;
     margin-top: 1rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ask-yes,
+  .ask-no {
+    min-width: unset;
+    width: 100%;
   }
 
   .ask-card {
@@ -929,7 +938,7 @@ code {
   .page-intro .lede,
   .dramatic-hero .lede,
   .ask-copy {
-    max-width: 20ch;
+    max-width: 100%;
   }
 
   .story-photo,
@@ -940,5 +949,51 @@ code {
 
   .slot-title {
     font-size: 0.98rem;
+  }
+}
+
+@media (hover: none) {
+  .button:hover {
+    transform: none;
+  }
+
+  .quiz-option:hover {
+    transform: none;
+    border-color: var(--border);
+  }
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.photo-slot img,
+.story-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.glass-card p {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (max-width: 560px) {
+  .score-circle {
+    width: 110px;
+    font-size: 2rem;
+  }
+
+  .glass-card > p {
+    font-size: 0.85rem;
+    line-height: 1.7;
   }
 }
